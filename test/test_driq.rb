@@ -4,10 +4,10 @@ require 'driq'
 class DriqTest<Test::Unit::TestCase
   def setup
     @driq = Driq.new(5)
-    p 1
   end
 
   def test_empty
-    assert(false)
+    key = @driq.write("hello")
+    assert_equal([key, 'hello'], @driq.read(0))
   end
 end
