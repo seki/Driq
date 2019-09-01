@@ -48,10 +48,10 @@ class Driq
   end
 
   def close
-    synchronize { 
+    synchronize do
       @closed = true; 
       @event.broadcast 
-    }
+    end
   end
 
   private
