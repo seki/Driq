@@ -2,5 +2,5 @@
 
 Driq = Drip - persisitence + queue
 
-Extreme simple RD stream for server sent event.
+Extreme simple RD stream for server sent events.
 

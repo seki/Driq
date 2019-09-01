@@ -48,12 +48,20 @@ class DriqTest<Test::Unit::TestCase
     key = @driq.write("hello")
     assert_equal("hello", @driq.read(0)[1])
     x = Thread.new do
-      assert_elapsed(2) do
+      assert_elapsed(1) do
         assert_equal("world", @driq.read(key * 2)[1])
       end
     end
-    sleep 2
+    sleep 1
     @driq.write("world")
     x.join
+  end
+
+  def test_last
+    assert_equal(nil, @driq.last)
+    @driq.write("hello")
+    assert_equal("hello", @driq.last.last)
+    @driq.write("world")
+    assert_equal("world", @driq.last.last)
   end
 end

@@ -26,6 +26,12 @@ class Driq
     readpartial(key, 1).first
   end
 
+  def last(if_empty=nil)
+    synchronize do
+      @list.empty? ? if_empty : read(@last - 1)
+    end
+  end
+
   def readpartial(key, size)
     synchronize do
       key = @last unless key
