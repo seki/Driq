@@ -28,9 +28,11 @@ class Driq
 
   def readpartial(key, size)
     synchronize do
+      key = @last unless key
       raise ClosedQueueError if @closed
       idx = seek(key)
       if idx.nil?
+        key = @last
         @event.wait
         idx = seek(key)
       end
@@ -54,10 +56,6 @@ class Driq
   end
 
   def seek(key)
-    if key
-      @list.bsearch_index {|x| x.first > key}
-    else
-      @list.empty? ? nil : @list.size - 1
-    end
+    @list.bsearch_index {|x| x.first > key}
   end
 end
