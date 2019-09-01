@@ -66,12 +66,12 @@ class DriqTest<Test::Unit::TestCase
   end
 
   def test_close
-    key = @driq.write("hello")
+    @driq.push("hello")
     assert_equal("hello", @driq.read(0)[1])
     x = Thread.new do
       assert_elapsed(1) do
         assert_raise(ClosedQueueError) do
-          @driq.read(key)
+          @driq.read(nil)
         end
       end
     end

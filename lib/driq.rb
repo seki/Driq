@@ -21,6 +21,7 @@ class Driq
       return cell.first
     end
   end
+  alias push write
 
   def read(key)
     readpartial(key, 1).first
