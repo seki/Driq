@@ -1,5 +1,6 @@
 require "driq/version"
 require "monitor"
+require "json"
 
 class Driq
   include MonitorMixin
@@ -31,6 +32,10 @@ class Driq
     synchronize do
       @list.empty? ? if_empty : read(@last - 1)
     end
+  end
+
+  def last_key
+    @last
   end
 
   def readpartial(key, size)
@@ -66,3 +71,63 @@ class Driq
     @list.bsearch_index {|x| x.first > key}
   end
 end
+
+class Driq
+  class EventSource
+    def initialize(driq = nil)
+      @driq = driq || Driq.new
+    end
+    attr_reader :driq
+
+    def write(value)
+      @driq.write([nil, value])
+    end
+
+    def first_line(str)
+      str.to_s.lines.first.chomp
+    end
+
+    def event(ev, value)
+      @driq.write([first_line(ev), value])
+    end
+
+    def ping
+      comment
+    end
+
+    def comment(str="ping")
+      @driq.write([:ping, first_line(str)])
+    end
+
+    def build_packet(cursor, ev, value)
+      case ev
+      when :ping
+        ": #{value}\n\n"
+      when nil
+        "id: #{cursor}\ndata: #{value.to_json}\n\n"
+      else
+        "id: #{cursor}\nevent: #{ev}\ndata: #{value.to_json}\n\n"
+      end
+    end
+
+    def read(cursor)
+      cursor, value = @driq.read(cursor)
+      return cursor, build_packet(cursor, value[0], value[1])
+    end
+  end
+
+  class EventStream
+    def initialize(src, seek=nil)
+      @src = src
+      @cursor = Integer(seek) rescue (src.driq.last_key - 1)
+    end
+
+    def pop
+      @cursor, buf = @src.read(@cursor)
+      buf
+    end
+
+    def close; end
+  end
+end
+
