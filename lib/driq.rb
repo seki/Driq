@@ -5,10 +5,11 @@ require "json"
 class Driq
   include MonitorMixin
 
-  def initialize(max_size=100)
+  def initialize(size=100)
     super()
     @last = 0
-    @max_size = max_size
+    @floor = size
+    @ceil = size * 2
     @list = []
     @event = new_cond
     @closed = false
@@ -18,6 +19,7 @@ class Driq
     synchronize do
       cell = [make_key, value]
       @list.push(cell)
+      @list = @list.last(@floor) if @list.size > @ceil
       @event.broadcast
       return cell.first
     end
@@ -69,6 +71,30 @@ class Driq
 
   def seek(key)
     @list.bsearch_index {|x| x.first > key}
+  end
+end
+
+class DriqDownstream < Driq
+  def initialize(upper, size=100)
+    super(size)
+    @upper = upper
+    Thread.new { download }
+  end
+
+  def write(value)
+    @upper.write(value)
+  end
+
+  def download
+    while true
+      ary = @upper.readpartial(@last, @ceil)
+      synchronize do
+        @list += ary
+        @list = @list.last(@floor) if @list.size > @ceil
+        @last = ary.last[0]
+        @event.broadcast
+      end
+    end
   end
 end
 
