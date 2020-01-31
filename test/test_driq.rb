@@ -81,13 +81,12 @@ class DriqTest<Test::Unit::TestCase
   end
 
   def test_size
-    driq = Driq.new(5)
     5.times do |n|
-      driq.write(n)
+      @driq.write(n)
     end
     20.times do |n|
-      driq.write(n)
-      assert((5..10) === driq.readpartial(0, 100).size)
+      @driq.write(n)
+      assert((5..10) === @driq.readpartial(0, 100).size)
     end
   end
 
