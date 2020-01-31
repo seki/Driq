@@ -56,7 +56,7 @@ class Koto
 
   def make_entry(req)
     text = JSON.parse(req.body)["text"] || ""
-    from = req.peeraddr[2]
+    from = req["X-Forwarded-For"] || req.peeraddr[2]
     color = Color[from]
     group = [from, Time.now.strftime("%H:%M")].join(" @ ")
     {"text" => text, "group" => group, "color" => color}
@@ -67,7 +67,7 @@ class Koto
   end
 end
 
-port = Integer(ENV['TOFU_PORT']) rescue 8088
+port = Integer(ENV['TOFU_PORT']) rescue 10510
 drb_url = 'druby://localhost:55443'
 
 koto = Koto.new(port, drb_url)
