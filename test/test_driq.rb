@@ -90,6 +90,12 @@ class DriqTest<Test::Unit::TestCase
     end
   end
 
+  def test_timeout
+    assert_equal([], @driq.readpartial(0, 1, 0.1))
+    assert_equal(nil, @driq.read(0, 0.1))
+    @driq.write('world')
+    assert_equal("world", @driq.read(0, 0.1)[1])
+  end
 end
 
 class DriqDownstreamTest<DriqTest

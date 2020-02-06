@@ -26,8 +26,8 @@ class Driq
   end
   alias push write
 
-  def read(key)
-    readpartial(key, 1).first
+  def read(key, timeout=nil)
+    readpartial(key, 1, timeout).first
   end
 
   def last(if_empty=nil)
@@ -40,18 +40,18 @@ class Driq
     @last
   end
 
-  def readpartial(key, size)
+  def readpartial(key, size, timeout=nil)
     synchronize do
       key = @last unless key
       raise ClosedQueueError if @closed
       idx = seek(key)
       if idx.nil?
         key = @last
-        @event.wait
+        @event.wait(timeout)
         idx = seek(key)
       end
       raise ClosedQueueError if @closed
-      @list.slice(idx, size)
+      idx ? @list.slice(idx, size) : []
     end
   end
 
