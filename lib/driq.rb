@@ -100,10 +100,12 @@ end
 
 class Driq
   class EventSource
-    def initialize(driq = nil)
+    def initialize(driq = nil, timeout = 60)
       @driq = driq || Driq.new
+      @timeout = timeout
     end
     attr_reader :driq
+    attr_accessor :timeout
 
     def write(value)
       @driq.write([nil, value])
@@ -137,7 +139,7 @@ class Driq
     end
 
     def read(cursor)
-      cursor, value = @driq.read(cursor)
+      cursor, value = @driq.read(cursor, @timeout) || [cursor, [:ping, 'keep']]
       return cursor, build_packet(cursor, value[0], value[1])
     end
   end
