@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Koto</title>
+  </head>
+  <style type="text/css" media="screen">
+    body {
+        font-family: Helvetica;
+        background: #FFFFFF;
+        color: #000000;　
+    }
+  </style>
+  <body>
+    <div class="head">
+      <h2>CO2</h2>
+    </div>
+  </body>
+  <script>
+  var evt = new EventSource('stream');
+
+  evt.onmessage = function(e) {
+    var it = JSON.parse(e.data);
+    console.log(it);
+    console.log(e);
+  };
+  </script>
+</html>
