@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Koto</title>
+    <title>CO2</title>
   </head>
   <style type="text/css" media="screen">
     body {
@@ -14,14 +14,46 @@
     <div class="head">
       <h2>CO2</h2>
     </div>
+<canvas id="myChart" width="200" height="200"></canvas>
+
   </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
   <script>
+
   var evt = new EventSource('stream');
 
   evt.onmessage = function(e) {
     var it = JSON.parse(e.data);
     console.log(it);
-    console.log(e);
+    console.log(new Date(Number(e.lastEventId) * 0.001));
+    chartDataSet.data.datasets[0].data.push({
+      y: it['concentration'],
+      t: new Date(Number(e.lastEventId) * 0.001)
+    }); 
+    chart.update();
   };
-  </script>
+
+var ctx = document.getElementById("myChart").getContext('2d');
+const chartDataSet = {
+  type: 'line',
+  data: {
+    datasets: [{
+      label: 'sample1 (dist: linear)',
+      data: [], // set data points later
+    }]
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        type: 'time', // specify time series type
+        distribution: 'linear', // use 'linear'(default) or 'series'
+        ticks: {
+          source: 'data'
+        }
+      }]
+    }
+  }
+};
+var chart = new Chart(ctx, chartDataSet);
+</script>
 </html>

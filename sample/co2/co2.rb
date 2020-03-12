@@ -1,7 +1,7 @@
 require 'webrick'
 require 'driq'
 require 'driq/webrick'
-require_relative '../../../ruby-mh-z19/lib/mh-z19'
+require 'mh-z19'
 
 class CO2
   def initialize(port)
@@ -22,7 +22,7 @@ class CO2
   end
 
   def on_index(req, res)
-    res.body = @front["body"]
+    res.body = File.read("co2.html")
   end
 
   def on_stream(req, res)
@@ -40,19 +40,17 @@ class CO2
   def co2_loop
     co2 = MH_Z19::Serial.new('/dev/serial0')
     last = nil
-    sleep 30
+    sleep 3
     loop do
       begin
         detail = co2.read_concentration_detail rescue nil
-        @driq.write(detail) unless last == detail
+        @src.write(detail) unless last == detail
         last = detail
       rescue MH_Z19::Serial::InvalidPacketException
+p $!
       end
     end
     sleep 10
-  end
-end
-
   end
 end
 
