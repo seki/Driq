@@ -49,8 +49,8 @@ class CO2
       rescue MH_Z19::Serial::InvalidPacketException
 p $!
       end
+      sleep 60
     end
-    sleep 10
   end
 end
 

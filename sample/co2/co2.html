@@ -9,46 +9,101 @@
         background: #FFFFFF;
         color: #000000;　
     }
+
+    .main {
+      width: 80%;
+      height: 50%;
+    }
   </style>
   <body>
     <div class="head">
       <h2>CO2</h2>
     </div>
-<canvas id="myChart" width="200" height="200"></canvas>
+    <div class="main">
+    <canvas id="myChart" width="200" height="200"></canvas>
+    </div>
 
   </body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
   <script>
 
-  var evt = new EventSource('stream');
+var evt = new EventSource('stream');
 
-  evt.onmessage = function(e) {
-    var it = JSON.parse(e.data);
-    console.log(it);
-    console.log(new Date(Number(e.lastEventId) * 0.001));
-    chartDataSet.data.datasets[0].data.push({
-      y: it['concentration'],
-      t: new Date(Number(e.lastEventId) * 0.001)
-    }); 
-    chart.update();
-  };
+evt.onmessage = function(e) {
+  var it = JSON.parse(e.data);
+  console.log(it);
+  console.log(new Date(Number(e.lastEventId) * 0.001));
+  time = new Date(Number(e.lastEventId) * 0.001);
+  chartDataSet.data.datasets[0].data.push({
+    y: it['concentration'],
+    t: time
+  });
+  chartDataSet.data.datasets[1].data.push({
+    y: it['temperature'],
+    t: time
+  });
+  while (time - chartDataSet.data.datasets[0].data[0].t > 3600000) {
+    chartDataSet.data.datasets[0].data.shift();
+    chartDataSet.data.datasets[1].data.shift();
+  }
+  chart.update();
+};
 
 var ctx = document.getElementById("myChart").getContext('2d');
 const chartDataSet = {
   type: 'line',
+  responsive: false,
   data: {
     datasets: [{
-      label: 'sample1 (dist: linear)',
-      data: [], // set data points later
+      label: 'ppm',
+      data: [],
+      borderColor: "rgb(54, 162, 235)",
+      fill: false,
+      yAxisID: "y-axis-1"
+    }, {
+      label: 'temp',
+      data: [],
+      borderColor: "rgb(235, 0, 0)",
+      fill: false,
+      yAxisID: "y-axis-2"
     }]
   },
   options: {
     scales: {
       xAxes: [{
-        type: 'time', // specify time series type
-        distribution: 'linear', // use 'linear'(default) or 'series'
+        type: 'time',
+        time: {
+            displayFormats: {
+                millisecond: 'h:mm',
+                second: 'h:mm'
+            },
+            unit: 'minute'
+        },
+        distribution: 'linear',
         ticks: {
           source: 'data'
+        },
+        gridLines: {
+          display: false
+        }
+      }],
+      yAxes: [{
+        id: 'y-axis-1',
+        ticks: {
+          source: 'data',
+          min: 0,
+          max: 2000
+        }
+      }, {
+        id: 'y-axis-2',
+        position: 'right',
+        ticks: {
+          source: 'data',
+          min: -5,
+          max: 40
+        },
+        gridLines: {
+          display: false
         }
       }]
     }
