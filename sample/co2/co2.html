@@ -34,20 +34,24 @@ evt.onmessage = function(e) {
   console.log(it);
   console.log(new Date(Number(e.lastEventId) * 0.001));
   time = new Date(Number(e.lastEventId) * 0.001);
+  add_data(it['concentration'], it['concentration'], time)
+};
+
+function add_data(concentration, temperature, time) {
   chartDataSet.data.datasets[0].data.push({
-    y: it['concentration'],
+    y: concentration,
     t: time
   });
   chartDataSet.data.datasets[1].data.push({
-    y: it['temperature'],
+    y: temperature,
     t: time
   });
   while (time - chartDataSet.data.datasets[0].data[0].t > 3600000) {
     chartDataSet.data.datasets[0].data.shift();
     chartDataSet.data.datasets[1].data.shift();
   }
-  chart.update();
-};
+  chart.update();  
+}
 
 var ctx = document.getElementById("myChart").getContext('2d');
 const chartDataSet = {
@@ -92,7 +96,7 @@ const chartDataSet = {
         ticks: {
           source: 'data',
           min: 0,
-          max: 2000
+          max: 1500
         }
       }, {
         id: 'y-axis-2',
