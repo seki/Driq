@@ -17,7 +17,7 @@
   </style>
   <body>
     <div class="head">
-      <h2>CO2</h2>
+      <h2>CO2 <span id="co2"></span></h2>
     </div>
     <div class="main">
     <canvas id="myChart" style="position: relative; height:100; width:150"></canvas>
@@ -34,12 +34,18 @@ evt.onmessage = function(e) {
   console.log(it);
   console.log(new Date(Number(e.lastEventId) * 0.001));
   time = new Date(Number(e.lastEventId) * 0.001);
+  add_data(it['concentration'], it['temperature'], time);
+};
+
+var co2_text = document.getElementById("co2");
+
+function add_data(concentration, temperature, time) {
   chartDataSet.data.datasets[0].data.push({
-    y: it['concentration'],
+    y: concentration,
     t: time
   });
   chartDataSet.data.datasets[1].data.push({
-    y: it['temperature'],
+    y: temperature,
     t: time
   });
   while (time - chartDataSet.data.datasets[0].data[0].t > 3600000) {
@@ -47,7 +53,8 @@ evt.onmessage = function(e) {
     chartDataSet.data.datasets[1].data.shift();
   }
   chart.update();
-};
+  co2_text.textContent = concentration + 'ppm';
+}
 
 var ctx = document.getElementById("myChart").getContext('2d');
 const chartDataSet = {
