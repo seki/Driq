@@ -1,0 +1,16 @@
+#
+
+[Unit]
+Description=MH-Z14A CO2 Server
+After=network.target
+After=syslog.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+User=pi
+Group=pi
+Type=simple
+ExecStart=/home/pi/src/Driq/sample/co2/co2-service.sh
+Restart=always
