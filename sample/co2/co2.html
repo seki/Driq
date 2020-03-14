@@ -10,9 +10,9 @@
         color: #000000;　
     }
 
-    .main {
-      width: 80%;
-      height: 50%;
+    #myChart {
+      position: relative;
+      height:300; width:150
     }
   </style>
   <body>
@@ -20,7 +20,7 @@
       <h2>CO2</h2>
     </div>
     <div class="main">
-    <canvas id="myChart" width="200" height="200"></canvas>
+    <canvas id="myChart" style="position: relative; height:100; width:150"></canvas>
     </div>
 
   </body>
@@ -34,29 +34,26 @@ evt.onmessage = function(e) {
   console.log(it);
   console.log(new Date(Number(e.lastEventId) * 0.001));
   time = new Date(Number(e.lastEventId) * 0.001);
-  add_data(it['concentration'], it['concentration'], time)
-};
-
-function add_data(concentration, temperature, time) {
   chartDataSet.data.datasets[0].data.push({
-    y: concentration,
+    y: it['concentration'],
     t: time
   });
   chartDataSet.data.datasets[1].data.push({
-    y: temperature,
+    y: it['temperature'],
     t: time
   });
   while (time - chartDataSet.data.datasets[0].data[0].t > 3600000) {
     chartDataSet.data.datasets[0].data.shift();
     chartDataSet.data.datasets[1].data.shift();
   }
-  chart.update();  
-}
+  chart.update();
+};
 
 var ctx = document.getElementById("myChart").getContext('2d');
 const chartDataSet = {
   type: 'line',
   responsive: false,
+  aspectRatio: 2,
   data: {
     datasets: [{
       label: 'ppm',
@@ -79,12 +76,14 @@ const chartDataSet = {
         time: {
             displayFormats: {
                 millisecond: 'h:mm',
-                second: 'h:mm'
+                second: 'h:mm',
+                minute: 'h:mm'
             },
             unit: 'minute'
         },
         distribution: 'linear',
         ticks: {
+          maxTicksLimit:6,
           source: 'data'
         },
         gridLines: {
@@ -95,8 +94,8 @@ const chartDataSet = {
         id: 'y-axis-1',
         ticks: {
           source: 'data',
-          min: 0,
-          max: 1500
+          min: 200,
+          max: 2000
         }
       }, {
         id: 'y-axis-2',
