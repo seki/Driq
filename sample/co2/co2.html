@@ -54,6 +54,7 @@ function add_data(concentration, temperature, time) {
   }
   chart.update();
   co2_text.textContent = concentration + 'ppm';
+  document.title = concentration + 'ppm';
 }
 
 var ctx = document.getElementById("myChart").getContext('2d');
